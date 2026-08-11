@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IGCSE Chemistry (0620) Past Papers</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; background: #f4f7f6; }
+        h1 { color: #2c3e50; text-align: center; }
+        
+        /* 篩選器樣式 */
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            color: #34495e;
+        }
+        select {
+            padding: 8px 12px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+            background-color: #fff;
+        }
+        select:focus { border-color: #3498db; }
+
+        /* 列表與卡片樣式 */
+        .year-card { background: white; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; }
+        .year-btn { width: 100%; text-align: left; padding: 15px 20px; font-size: 18px; font-weight: bold; background: #34495e; color: white; border: none; cursor: pointer; transition: 0.3s; }
+        .year-btn:hover { background: #2c3e50; }
+        .season-container { padding: 15px 20px; display: none; }
+        .season-title { font-size: 16px; font-weight: bold; color: #e74c3c; margin: 15px 0 10px; padding-bottom: 5px; border-bottom: 2px solid #eee; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background: #f8f9fa; color: #333; }
+        a { color: #3498db; text-decoration: none; font-weight: 500; display: inline-block; padding: 3px 6px; border-radius: 4px;}
+        a:hover { background: #e3f2fd; text-decoration: underline; color: #2980b9; }
+        .extra-links { text-align: center; margin-bottom: 20px; }
+        .extra-links a { margin: 0 10px; color: #27ae60; }
+        .extra-links a:hover { background: #e8f5e9; color: #2ecc71;}
+        
+        .no-results { text-align: center; padding: 30px; color: #7f8c8d; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <h1>🧪 IGCSE Chemistry (0620) 直連目錄</h1>
+    
+    <!-- 篩選器區域 -->
+    <div class="filter-container">
+        <div class="filter-group">
+            <label for="f-year">年份:</label>
+            <select id="f-year" onchange="renderPapers()">
+                <option value="all">全部 (All)</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+                <option value="2019">2019</option>
+                <option value="2018">2018</option>
+                <option value="2017">2017</option>
+                <option value="2016">2016</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="f-season">考季:</label>
+            <select id="f-season" onchange="renderPapers()">
+                <option value="all">全部 (All)</option>
+                <option value="m">March (Feb/Mar)</option>
+                <option value="s">May/June</option>
+                <option value="w">Oct/Nov</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="f-paper">Paper:</label>
+            <select id="f-paper" onchange="renderPapers()">
+                <option value="all">全部 (All)</option>
+                <option value="1">Paper 1 (MCQ Core)</option>
+                <option value="2">Paper 2 (MCQ Ext)</option>
+                <option value="3">Paper 3 (Theory Core)</option>
+                <option value="4">Paper 4 (Theory Ext)</option>
+                <option value="5">Paper 5 (Practical)</option>
+                <option value="6">Paper 6 (Alt to Prac)</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="papers-list"></div>
+
+    <script>
+        // 在這裡加入了 2017 和 2016
+        const years = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016];
+        const seasons = [
+            { id: 'm', name: '🌸 March (Feb/Mar) - 僅 Variant 2' },
+            { id: 's', name: '☀️ May/June' },
+            { id: 'w', name: '🍂 Oct/Nov' }
+        ];
+        const papers = [1, 2, 3, 4, 5, 6];
+        const variants = [1, 2, 3];
+
+        function getLink(year, season, type, paper, variant) {
+            const yy = year.toString().slice(-2);
+            return `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/0620_${season}${yy}_${type}_${paper}${variant}.pdf`;
+        }
+        
+        function getExtraLink(year, season, type) {
+            const yy = year.toString().slice(-2);
+            return `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/0620_${season}${yy}_${type}.pdf`;
+        }
+
+        function renderPapers() {
+            const fYear = document.getElementById('f-year').value;
+            const fSeason = document.getElementById('f-season').value;
+            const fPaper = document.getElementById('f-paper').value;
+            const container = document.getElementById('papers-list');
+            
+            container.innerHTML = '';
+            
+            const isFiltered = (fYear !== 'all' || fSeason !== 'all' || fPaper !== 'all');
+
+            let hasAnyResult = false;
+
+            years.forEach(year => {
+                if (fYear !== 'all' && year.toString() !== fYear) return;
+
+                const card = document.createElement('div');
+                card.className = 'year-card';
+
+                const btn = document.createElement('button');
+                btn.className = 'year-btn';
+                
+                const seasonDiv = document.createElement('div');
+                seasonDiv.className = 'season-container';
+
+                if (isFiltered) {
+                    seasonDiv.style.display = 'block';
+                    btn.innerHTML = `▼ ${year} 年`;
+                } else {
+                    seasonDiv.style.display = 'none';
+                    btn.innerHTML = `▶ ${year} 年`;
+                }
+
+                btn.onclick = function() {
+                    if (seasonDiv.style.display === 'block') {
+                        seasonDiv.style.display = 'none';
+                        this.innerHTML = `▶ ${year} 年`;
+                    } else {
+                        seasonDiv.style.display = 'block';
+                        this.innerHTML = `▼ ${year} 年`;
+                    }
+                };
+
+                let hasSeasonMatch = false;
+
+                seasons.forEach(season => {
+                    if (fSeason !== 'all' && season.id !== fSeason) return;
+                    
+                    let tableHTML = '';
+                    let hasPaperMatch = false;
+
+                    papers.forEach(p => {
+                        if (fPaper !== 'all' && p.toString() !== fPaper) return;
+                        hasPaperMatch = true;
+
+                        let row = `<tr><td><strong>Paper ${p}</strong></td>`;
+                        variants.forEach(v => {
+                            if (season.id === 'm' && v !== 2) return;
+                            row += `<td>
+                                <a href="${getLink(year, season.id, 'qp', p, v)}" target="_blank">QP (題目)</a> | 
+                                <a href="${getLink(year, season.id, 'ms', p, v)}" target="_blank">MS (答案)</a>
+                            </td>`;
+                        });
+                        row += `</tr>`;
+                        tableHTML += row;
+                    });
+
+                    if (!hasPaperMatch) return;
+                    hasSeasonMatch = true;
+
+                    const title = document.createElement('div');
+                    title.className = 'season-title';
+                    title.innerText = season.name;
+                    seasonDiv.appendChild(title);
+
+                    const table = document.createElement('table');
+                    let thead = `<tr><th>Paper \\ Variant</th>`;
+                    variants.forEach(v => {
+                        if (season.id === 'm' && v !== 2) return;
+                        thead += `<th>Variant ${v}</th>`;
+                    });
+                    thead += `</tr>`;
+                    table.innerHTML = thead + tableHTML;
+                    seasonDiv.appendChild(table);
+
+                    const extraLinks = `<div class="extra-links">
+                        <a href="${getExtraLink(year, season.id, 'er')}" target="_blank">📄 Examiner Report (ER)</a>
+                        <a href="${getExtraLink(year, season.id, 'gt')}" target="_blank">📊 Grade Thresholds (GT)</a>
+                    </div>`;
+                    seasonDiv.insertAdjacentHTML('beforeend', extraLinks);
+                });
+
+                if (hasSeasonMatch) {
+                    hasAnyResult = true;
+                    card.appendChild(btn);
+                    card.appendChild(seasonDiv);
+                    container.appendChild(card);
+                }
+            });
+
+            if (!hasAnyResult) {
+                container.innerHTML = '<div class="no-results">找不到符合條件的試卷，請嘗試調整篩選條件。</div>';
+            }
+        }
+
+        window.onload = renderPapers;
+    </script>
+</body>
+</html>

@@ -66,6 +66,8 @@
             <label for="f-year">年份:</label>
             <select id="f-year" onchange="renderPapers()">
                 <option value="all">全部 (All)</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
                 <option value="2024">2024</option>
                 <option value="2023">2023</option>
                 <option value="2022">2022</option>
@@ -103,8 +105,7 @@
     <div id="papers-list"></div>
 
     <script>
-        // 在這裡加入了 2017 和 2016
-        const years = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016];
+        const years = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016];
         const seasons = [
             { id: 'm', name: '🌸 March (Feb/Mar) - 僅 Variant 2' },
             { id: 's', name: '☀️ May/June' },
@@ -113,12 +114,35 @@
         const papers = [1, 2, 3, 4, 5, 6];
         const variants = [1, 2, 3];
 
+        // 綁定你提供的 Google Drive 連結
+        const driveLinks2026M = {
+            'qp_12': 'https://drive.google.com/open?id=1m85oPImPukSfB5YTh297hOLOwttha0mB',
+            'ms_12': 'https://drive.google.com/open?id=1wRP-9sT_yrenPvf6j_cc0oQv-ap4LHcf',
+            'qp_22': 'https://drive.google.com/open?id=1M_xyuh6ildY5k8yaGz1ef5vXIPrXsoXG',
+            'ms_22': 'https://drive.google.com/open?id=1mluUnELIKYMzOWqXw6toLkypqK0ir1K-',
+            'qp_32': 'https://drive.google.com/open?id=1E74XaeRxHrOnPqrvSaVvn4DcajaRETHS',
+            'ms_32': 'https://drive.google.com/open?id=1snzFB7asiKPRm7JU_MOesL2APTBE_1a-',
+            'qp_42': 'https://drive.google.com/open?id=1_XomFfb16viiu4tiTQF2NYep8C3bgNH5',
+            'ms_42': 'https://drive.google.com/open?id=1nwkwEmOiyBjqwxSZfzphEnrhxfYC8U8f',
+            'ms_52': 'https://drive.google.com/open?id=1EVjUI4FlqU76tN5jAzyPHGpqnMI9N3Op',
+            'qp_62': 'https://drive.google.com/open?id=1ys7xYJKKDDdbFrSmwlc5UnP8va4lj5SN',
+            'ms_62': 'https://drive.google.com/open?id=1wdMXdVEAFj-oX-DI64GNo3uXQ5-xAbTQ',
+            'gt': 'https://drive.google.com/open?id=1Pyw379tc0v5o-SN8GaeLuTRN69K6nN-S'
+        };
+
         function getLink(year, season, type, paper, variant) {
+            if (year === 2026 && season === 'm') {
+                const key = `${type}_${paper}${variant}`;
+                return driveLinks2026M[key] || "javascript:alert('Google Drive 裏面沒有提供這個檔案');";
+            }
             const yy = year.toString().slice(-2);
             return `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/0620_${season}${yy}_${type}_${paper}${variant}.pdf`;
         }
         
         function getExtraLink(year, season, type) {
+            if (year === 2026 && season === 'm') {
+                return driveLinks2026M[type] || "javascript:alert('Google Drive 裏面沒有提供這個檔案');";
+            }
             const yy = year.toString().slice(-2);
             return `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/0620_${season}${yy}_${type}.pdf`;
         }
@@ -170,6 +194,9 @@
                 seasons.forEach(season => {
                     if (fSeason !== 'all' && season.id !== fSeason) return;
                     
+                    // 新增：2026 年只有 'm' 考季的資料
+                    if (year === 2026 && season.id !== 'm') return;
+                    
                     let tableHTML = '';
                     let hasPaperMatch = false;
 
@@ -180,9 +207,17 @@
                         let row = `<tr><td><strong>Paper ${p}</strong></td>`;
                         variants.forEach(v => {
                             if (season.id === 'm' && v !== 2) return;
+                            
+                            let qpLink = getLink(year, season.id, 'qp', p, v);
+                            let msLink = getLink(year, season.id, 'ms', p, v);
+                            
+                            // 只有正常的連結才加入 _blank 開新視窗，如果是 alert 就直接執行
+                            let qpTarget = qpLink.startsWith('http') ? 'target="_blank"' : '';
+                            let msTarget = msLink.startsWith('http') ? 'target="_blank"' : '';
+
                             row += `<td>
-                                <a href="${getLink(year, season.id, 'qp', p, v)}" target="_blank">QP (題目)</a> | 
-                                <a href="${getLink(year, season.id, 'ms', p, v)}" target="_blank">MS (答案)</a>
+                                <a href="${qpLink}" ${qpTarget}>QP (題目)</a> | 
+                                <a href="${msLink}" ${msTarget}>MS (答案)</a>
                             </td>`;
                         });
                         row += `</tr>`;
@@ -207,9 +242,15 @@
                     table.innerHTML = thead + tableHTML;
                     seasonDiv.appendChild(table);
 
+                    let erLink = getExtraLink(year, season.id, 'er');
+                    let gtLink = getExtraLink(year, season.id, 'gt');
+                    
+                    let erTarget = erLink.startsWith('http') ? 'target="_blank"' : '';
+                    let gtTarget = gtLink.startsWith('http') ? 'target="_blank"' : '';
+
                     const extraLinks = `<div class="extra-links">
-                        <a href="${getExtraLink(year, season.id, 'er')}" target="_blank">📄 Examiner Report (ER)</a>
-                        <a href="${getExtraLink(year, season.id, 'gt')}" target="_blank">📊 Grade Thresholds (GT)</a>
+                        <a href="${erLink}" ${erTarget}>📄 Examiner Report (ER)</a>
+                        <a href="${gtLink}" ${gtTarget}>📊 Grade Thresholds (GT)</a>
                     </div>`;
                     seasonDiv.insertAdjacentHTML('beforeend', extraLinks);
                 });

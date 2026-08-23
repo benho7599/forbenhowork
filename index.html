@@ -114,7 +114,7 @@
         const papers = [1, 2, 3, 4, 5, 6];
         const variants = [1, 2, 3];
 
-        // 綁定你提供的 Google Drive 連結
+        // 綁定你提供的 Google Drive 連結 (僅用於 2026 March)
         const driveLinks2026M = {
             'qp_12': 'https://drive.google.com/open?id=1m85oPImPukSfB5YTh297hOLOwttha0mB',
             'ms_12': 'https://drive.google.com/open?id=1wRP-9sT_yrenPvf6j_cc0oQv-ap4LHcf',
@@ -131,10 +131,12 @@
         };
 
         function getLink(year, season, type, paper, variant) {
+            // 2026 年 March 考季使用你提供的 Google Drive 連結
             if (year === 2026 && season === 'm') {
                 const key = `${type}_${paper}${variant}`;
                 return driveLinks2026M[key] || "javascript:alert('Google Drive 裏面沒有提供這個檔案');";
             }
+            // 其他年份與考季（包括 2026 May/June）一律使用 PapaCambridge 自動生成連結
             const yy = year.toString().slice(-2);
             return `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/0620_${season}${yy}_${type}_${paper}${variant}.pdf`;
         }
@@ -194,8 +196,8 @@
                 seasons.forEach(season => {
                     if (fSeason !== 'all' && season.id !== fSeason) return;
                     
-                    // 新增：2026 年只有 'm' 考季的資料
-                    if (year === 2026 && season.id !== 'm') return;
+                    // 2026 年目前還未有 Oct/Nov (w) 的資料，所以隱藏
+                    if (year === 2026 && season.id === 'w') return;
                     
                     let tableHTML = '';
                     let hasPaperMatch = false;
@@ -211,7 +213,6 @@
                             let qpLink = getLink(year, season.id, 'qp', p, v);
                             let msLink = getLink(year, season.id, 'ms', p, v);
                             
-                            // 只有正常的連結才加入 _blank 開新視窗，如果是 alert 就直接執行
                             let qpTarget = qpLink.startsWith('http') ? 'target="_blank"' : '';
                             let msTarget = msLink.startsWith('http') ? 'target="_blank"' : '';
 

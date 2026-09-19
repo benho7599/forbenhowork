@@ -3,40 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IGCSE Chemistry (0620) Past Papers</title>
+    <title>IGCSE Past Papers (0620 & 0580)</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; background: #f4f7f6; }
-        h1 { color: #2c3e50; text-align: center; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 20px; max-width: 1000px; margin: 0 auto; background: #f4f7f6; color: #333; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 20px; }
         
-        /* 篩選器樣式 */
-        .filter-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            background: white;
-            padding: 15px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            justify-content: center;
-        }
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            color: #34495e;
-        }
-        select {
-            padding: 8px 12px;
-            border: 1px solid #bdc3c7;
-            border-radius: 4px;
-            font-size: 14px;
-            outline: none;
-            cursor: pointer;
-            background-color: #fff;
-        }
-        select:focus { border-color: #3498db; }
+        /* 分頁標籤樣式 */
+        .tabs { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+        .tab-btn { padding: 12px 25px; font-size: 16px; font-weight: bold; cursor: pointer; border: none; border-radius: 8px; background: #e0e6ed; color: #7f8c8d; transition: all 0.3s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tab-btn:hover { background: #d1d8e0; color: #2c3e50; }
+        .tab-btn.active { background: #3498db; color: white; box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3); }
+
+        /* 篩選器樣式 (複選) */
+        .filter-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        .filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .filter-group:last-child { margin-bottom: 0; }
+        .filter-label { font-weight: bold; color: #2c3e50; min-width: 60px; }
+        .checkbox-label { display: flex; align-items: center; gap: 5px; cursor: pointer; padding: 6px 12px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 20px; font-size: 14px; user-select: none; transition: 0.2s; }
+        .checkbox-label:hover { background: #e9ecef; }
+        .checkbox-label input[type="checkbox"] { cursor: pointer; margin: 0; }
+        /* 當勾選時的高亮效果 */
+        .checkbox-label:has(input:checked) { background: #e3f2fd; border-color: #3498db; color: #2980b9; }
+
+        /* 快捷按鈕 */
+        .action-btns { margin-left: auto; display: flex; gap: 10px; }
+        .action-btn { padding: 5px 10px; font-size: 12px; border: 1px solid #bdc3c7; background: #fff; border-radius: 4px; cursor: pointer; }
+        .action-btn:hover { background: #ecf0f1; }
 
         /* 列表與卡片樣式 */
         .year-card { background: white; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); overflow: hidden; }
@@ -52,70 +44,85 @@
         .extra-links { text-align: center; margin-bottom: 20px; }
         .extra-links a { margin: 0 10px; color: #27ae60; }
         .extra-links a:hover { background: #e8f5e9; color: #2ecc71;}
-        
         .no-results { text-align: center; padding: 30px; color: #7f8c8d; font-size: 16px; }
     </style>
 </head>
 <body>
 
-    <h1>🧪 IGCSE Chemistry (0620) 直連目錄</h1>
+    <h1 id="main-title">🧪 IGCSE Chemistry (0620) 直連目錄</h1>
     
-    <!-- 篩選器區域 -->
-    <div class="filter-container">
+    <!-- 分頁標籤 -->
+    <div class="tabs">
+        <button class="tab-btn active" id="tab-chem" onclick="switchSubject('chem')">🧪 Chemistry (0620)</button>
+        <button class="tab-btn" id="tab-math" onclick="switchSubject('math')">📐 Mathematics (0580)</button>
+    </div>
+
+    <!-- 複選篩選器區域 -->
+    <div class="filter-container" id="filters">
+        <!-- 年份複選 -->
         <div class="filter-group">
-            <label for="f-year">年份:</label>
-            <select id="f-year" onchange="renderPapers()">
-                <option value="all">全部 (All)</option>
-                <option value="2026">2026</option>
-                <option value="2025">2025</option>
-                <option value="2024">2024</option>
-                <option value="2023">2023</option>
-                <option value="2022">2022</option>
-                <option value="2021">2021</option>
-                <option value="2020">2020</option>
-                <option value="2019">2019</option>
-                <option value="2018">2018</option>
-                <option value="2017">2017</option>
-                <option value="2016">2016</option>
-            </select>
+            <div class="filter-label">年份:</div>
+            <div class="action-btns">
+                <button class="action-btn" onclick="toggleAll('year', true)">全選</button>
+                <button class="action-btn" onclick="toggleAll('year', false)">清空</button>
+            </div>
+            <!-- 自動生成 2026 ~ 2016 -->
+            <script>
+                for(let y = 2026; y >= 2016; y--) {
+                    document.write(`<label class="checkbox-label"><input type="checkbox" name="year" value="${y}" checked onchange="renderPapers()"> ${y}</label>`);
+                }
+            </script>
         </div>
+        
+        <!-- 考季複選 -->
         <div class="filter-group">
-            <label for="f-season">考季:</label>
-            <select id="f-season" onchange="renderPapers()">
-                <option value="all">全部 (All)</option>
-                <option value="m">March (Feb/Mar)</option>
-                <option value="s">May/June</option>
-                <option value="w">Oct/Nov</option>
-            </select>
+            <div class="filter-label">考季:</div>
+            <label class="checkbox-label"><input type="checkbox" name="season" value="m" checked onchange="renderPapers()"> March</label>
+            <label class="checkbox-label"><input type="checkbox" name="season" value="s" checked onchange="renderPapers()"> May/June</label>
+            <label class="checkbox-label"><input type="checkbox" name="season" value="w" checked onchange="renderPapers()"> Oct/Nov</label>
         </div>
+
+        <!-- Paper 複選 -->
         <div class="filter-group">
-            <label for="f-paper">Paper:</label>
-            <select id="f-paper" onchange="renderPapers()">
-                <option value="all">全部 (All)</option>
-                <option value="1">Paper 1 (MCQ Core)</option>
-                <option value="2">Paper 2 (MCQ Ext)</option>
-                <option value="3">Paper 3 (Theory Core)</option>
-                <option value="4">Paper 4 (Theory Ext)</option>
-                <option value="5">Paper 5 (Practical)</option>
-                <option value="6">Paper 6 (Alt to Prac)</option>
-            </select>
+            <div class="filter-label">Paper:</div>
+            <label class="checkbox-label"><input type="checkbox" name="paper" value="1" checked onchange="renderPapers()"> P1 (Core)</label>
+            <label class="checkbox-label"><input type="checkbox" name="paper" value="2" checked onchange="renderPapers()"> P2 (Ext)</label>
+            <label class="checkbox-label"><input type="checkbox" name="paper" value="3" checked onchange="renderPapers()"> P3 (Core)</label>
+            <label class="checkbox-label"><input type="checkbox" name="paper" value="4" checked onchange="renderPapers()"> P4 (Ext)</label>
+            <label class="checkbox-label" id="wrap-p5"><input type="checkbox" name="paper" value="5" id="p5" checked onchange="renderPapers()"> P5 (Prac)</label>
+            <label class="checkbox-label" id="wrap-p6"><input type="checkbox" name="paper" value="6" id="p6" checked onchange="renderPapers()"> P6 (ATP)</label>
         </div>
     </div>
 
     <div id="papers-list"></div>
 
     <script>
+        // 科目設定設定檔
+        const config = {
+            chem: {
+                id: '0620',
+                title: '🧪 IGCSE Chemistry (0620)',
+                papers: [1, 2, 3, 4, 5, 6]
+            },
+            math: {
+                id: '0580',
+                title: '📐 IGCSE Mathematics (0580)',
+                papers: [1, 2, 3, 4]
+            }
+        };
+        
+        let currentSubject = 'chem';
+
         const years = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016];
         const seasons = [
             { id: 'm', name: '🌸 March (Feb/Mar) - 僅 Variant 2' },
             { id: 's', name: '☀️ May/June' },
             { id: 'w', name: '🍂 Oct/Nov' }
         ];
-        const papers = [1, 2, 3, 4, 5, 6];
         const variants = [1, 2, 3];
 
-        // 綁定你提供的 Google Drive 連結 (僅用於 2026 March)
-        const driveLinks2026M = {
+        // 僅供 Chemistry 2026 March 使用的 Google Drive 連結
+        const driveLinksChem2026M = {
             'qp_12': 'https://drive.google.com/open?id=1m85oPImPukSfB5YTh297hOLOwttha0mB',
             'ms_12': 'https://drive.google.com/open?id=1wRP-9sT_yrenPvf6j_cc0oQv-ap4LHcf',
             'qp_22': 'https://drive.google.com/open?id=1M_xyuh6ildY5k8yaGz1ef5vXIPrXsoXG',
@@ -130,56 +137,96 @@
             'gt': 'https://drive.google.com/open?id=1Pyw379tc0v5o-SN8GaeLuTRN69K6nN-S'
         };
 
-        function getLink(year, season, type, paper, variant) {
-            // 2026 年 March 考季使用你提供的 Google Drive 連結
-            if (year === 2026 && season === 'm') {
-                const key = `${type}_${paper}${variant}`;
-                return driveLinks2026M[key] || "javascript:alert('Google Drive 裏面沒有提供這個檔案');";
+        // 切換科目邏輯
+        function switchSubject(subjectKey) {
+            currentSubject = subjectKey;
+            document.getElementById('main-title').innerText = config[subjectKey].title + ' 直連目錄';
+            
+            // 更新 UI 標籤狀態
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${subjectKey}`).classList.add('active');
+
+            // 數學沒有 P5 和 P6，自動隱藏並取消勾選
+            const isMath = subjectKey === 'math';
+            document.getElementById('wrap-p5').style.display = isMath ? 'none' : 'inline-flex';
+            document.getElementById('wrap-p6').style.display = isMath ? 'none' : 'inline-flex';
+            
+            if(isMath) {
+                document.getElementById('p5').checked = false;
+                document.getElementById('p6').checked = false;
+            } else {
+                // 切回化學時可選擇預設勾選
+                document.getElementById('p5').checked = true;
+                document.getElementById('p6').checked = true;
             }
-            // 其他年份與考季（包括 2026 May/June）一律使用 PapaCambridge 自動生成連結
+
+            renderPapers();
+        }
+
+        // 獲取目前有勾選的值
+        function getCheckedValues(name) {
+            return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
+        }
+
+        // 全選 / 清空按鈕功能
+        function toggleAll(name, state) {
+            document.querySelectorAll(`input[name="${name}"]`).forEach(cb => cb.checked = state);
+            renderPapers();
+        }
+
+        // 取得 PDF 連結
+        function getLink(year, season, type, paper, variant) {
+            const subjectId = config[currentSubject].id;
+            
+            // 處理化學科 2026 March 的雲端硬碟特例
+            if (currentSubject === 'chem' && year === 2026 && season === 'm') {
+                const key = `${type}_${paper}${variant}`;
+                return driveLinksChem2026M[key] || "javascript:alert('Google Drive 裏面沒有提供這個檔案');";
+            }
+            
             const yy = year.toString().slice(-2);
-            return `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/0620_${season}${yy}_${type}_${paper}${variant}.pdf`;
+            return `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${subjectId}_${season}${yy}_${type}_${paper}${variant}.pdf`;
         }
         
         function getExtraLink(year, season, type) {
-            if (year === 2026 && season === 'm') {
-                return driveLinks2026M[type] || "javascript:alert('Google Drive 裏面沒有提供這個檔案');";
+            const subjectId = config[currentSubject].id;
+
+            if (currentSubject === 'chem' && year === 2026 && season === 'm') {
+                return driveLinksChem2026M[type] || "javascript:alert('Google Drive 裏面沒有提供這個檔案');";
             }
             const yy = year.toString().slice(-2);
-            return `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/0620_${season}${yy}_${type}.pdf`;
+            return `https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/${subjectId}_${season}${yy}_${type}.pdf`;
         }
 
+        // 核心渲染功能
         function renderPapers() {
-            const fYear = document.getElementById('f-year').value;
-            const fSeason = document.getElementById('f-season').value;
-            const fPaper = document.getElementById('f-paper').value;
+            const selectedYears = getCheckedValues('year').map(Number);
+            const selectedSeasons = getCheckedValues('season');
+            const selectedPapers = getCheckedValues('paper').map(Number);
             const container = document.getElementById('papers-list');
             
             container.innerHTML = '';
             
-            const isFiltered = (fYear !== 'all' || fSeason !== 'all' || fPaper !== 'all');
+            if (selectedYears.length === 0 || selectedSeasons.length === 0 || selectedPapers.length === 0) {
+                container.innerHTML = '<div class="no-results">請至少勾選一個年份、考季與 Paper 以顯示結果。</div>';
+                return;
+            }
 
             let hasAnyResult = false;
 
             years.forEach(year => {
-                if (fYear !== 'all' && year.toString() !== fYear) return;
+                if (!selectedYears.includes(year)) return;
 
                 const card = document.createElement('div');
                 card.className = 'year-card';
 
                 const btn = document.createElement('button');
                 btn.className = 'year-btn';
+                btn.innerHTML = `▼ ${year} 年`;
                 
                 const seasonDiv = document.createElement('div');
                 seasonDiv.className = 'season-container';
-
-                if (isFiltered) {
-                    seasonDiv.style.display = 'block';
-                    btn.innerHTML = `▼ ${year} 年`;
-                } else {
-                    seasonDiv.style.display = 'none';
-                    btn.innerHTML = `▶ ${year} 年`;
-                }
+                seasonDiv.style.display = 'block'; // 預設展開
 
                 btn.onclick = function() {
                     if (seasonDiv.style.display === 'block') {
@@ -194,16 +241,16 @@
                 let hasSeasonMatch = false;
 
                 seasons.forEach(season => {
-                    if (fSeason !== 'all' && season.id !== fSeason) return;
+                    if (!selectedSeasons.includes(season.id)) return;
                     
-                    // 2026 年目前還未有 Oct/Nov (w) 的資料，所以隱藏
+                    // 2026 年目前還未有 Oct/Nov (w) 的資料，自動隱藏以防無效連結
                     if (year === 2026 && season.id === 'w') return;
                     
                     let tableHTML = '';
                     let hasPaperMatch = false;
 
-                    papers.forEach(p => {
-                        if (fPaper !== 'all' && p.toString() !== fPaper) return;
+                    config[currentSubject].papers.forEach(p => {
+                        if (!selectedPapers.includes(p)) return;
                         hasPaperMatch = true;
 
                         let row = `<tr><td><strong>Paper ${p}</strong></td>`;
@@ -269,6 +316,7 @@
             }
         }
 
+        // 網頁載入時自動渲染
         window.onload = renderPapers;
     </script>
 </body>
